@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Login Akun SDM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Library QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            text-align: center;
+            padding: 40px;
+        }
+        .box {
+            background: #ffffff;
+            max-width: 420px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+        #qrcode {
+            margin: 20px auto;
+        }
+        a {
+            font-size: 13px;
+            word-break: break-all;
+            color: #0066cc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <h2>QR Code Login Akun SDM</h2>
+        <p>Scan QR Code untuk verifikasi / login SSO SDM</p>
+
+        <div id="qrcode"></div>
+
+        <p>
+            <strong>Link SSO:</strong><br>
+            <a href="https://sso.data.kemendikdasmen.go.id/sys/authentication/verify" target="_blank">
+                https://sso.data.kemendikdasmen.go.id/sys/authentication/verify
+            </a>
+        </p>
+    </div>
+
+    <script>
+        new QRCode(document.getElementById("qrcode"), {
+            text: "https://sso.data.kemendikdasmen.go.id/sys/authentication/verify",
+            width: 200,
+            height: 200
+        });
+    </script>
+</body>
+</html>
