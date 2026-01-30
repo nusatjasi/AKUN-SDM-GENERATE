@@ -1,68 +1,584 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <title>QR Code Login Akun SDM</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Library QR Code -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master OTP Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #ec4899;
+            --bg-grad-start: #1e1b4b;
+            --bg-grad-end: #312e81;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f0f2f5;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            padding: 2rem;
             text-align: center;
-            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
         }
-        .box {
-            background: #ffffff;
-            max-width: 420px;
-            margin: auto;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+        /* Abstract header decoration */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+            animation: rotate 20s linear infinite;
         }
-        h2 {
-            margin-bottom: 10px;
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
-        p {
-            font-size: 14px;
-            color: #555;
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 10;
         }
-        #qrcode {
-            margin: 20px auto;
+
+        .header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 10;
         }
-        a {
-            font-size: 13px;
-            word-break: break-all;
-            color: #0066cc;
+
+        .header-links {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin: 0 5px;
+            transition: background 0.2s;
+        }
+
+        .header-links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .content {
+            padding: 2rem;
+            display: grid;
+            gap: 2rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: monospace;
+            /* For secrets */
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            background: #f3f4f6;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            margin: 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: white;
+            border: 1px solid transparent;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .radio-group input[type="radio"] {
+            display: none;
+        }
+
+        .radio-group label:has(input:checked) {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .result-box {
+            background: #f9fafb;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .bookmarklet-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 12px 24px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .bookmarklet-link:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Grid layout for Desktop */
+        @media (min-width: 768px) {
+            .content {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .full-width {
+                grid-column: 1 / -1;
+            }
+        }
+
+        #output {
+            background: #111827;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            padding: 1rem;
+            background: #f3f4f6;
         }
     </style>
 </head>
 
 <body>
-    <div class="box">
-        <h2>QR Code Login Akun SDM</h2>
-        <p>Scan QR Code untuk verifikasi / login SSO SDM</p>
 
-        <div id="qrcode"></div>
+    <div class="main-container">
+        <div class="header">
+            <h1>✨ Master OTP Tools</h1>
+            <p>Generator Bookmarklet & QR Code Decoder All-in-One</p>
+            <div class="header-links">
+                <a href="https://github.com/danie-lung/bookmarklet_kode_otp" target="_blank">GitHub</a>
+            </div>
+        </div>
 
-        <p>
-            <strong>Link SSO:</strong><br>
-            <a href="https://sso.data.kemendikdasmen.go.id/sys/authentication/verify" target="_blank">
-                https://sso.data.kemendikdasmen.go.id/sys/authentication/verify
-            </a>
-        </p>
+        <div class="content">
+            <!-- Section 1: Generator -->
+            <div class="full-width">
+                <div class="section-title">
+                    <span>⚡</span> Generator Bookmarklet & QR
+                </div>
+
+                <div class="form-group">
+                    <label>Pilih Jenis Layanan:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="bmOption" value="kode2fa" checked> Dapodik</label>
+                        <label><input type="radio" name="bmOption" value="totp_code"> SDM</label>
+                        <label><input type="radio" name="bmOption" value="infogtk"> InfoGTK</label>
+                        <label><input type="radio" name="bmOption" value="otp"> SIASN</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookmarkletCode">Secret Key / Kode Rahasia:</label>
+                    <input type="text" id="bookmarkletCode" placeholder="Contoh: JBSWY3DPEHPK3PXP...">
+                    <small style="color: #6b7280; font-size: 0.8rem;">Mendukung format Hex (0-9, A-F) dan Base32 (A-Z,
+                        2-7).</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookmarkletNama">Nama Bookmarklet:</label>
+                    <input type="text" id="bookmarkletNama" placeholder="Contoh: Login SAYA">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="action-btn" onclick="generateBookmarklet()">Buat Bookmarklet</button>
+                    <button class="action-btn" style="background: #3b82f6;" onclick="generateQR()">Lihat QR
+                        Code</button>
+                </div>
+
+                <div class="result-box" id="resultArea" style="display:none">
+                    <p style="margin:0 0 10px 0; font-size: 0.9rem; color: #4b5563;">👇 Tarik tombol ini ke Bookmark Bar
+                        browser 👇</p>
+                    <a id="bookmarkletLink" class="bookmarklet-link" href="#" target="_blank">Tombol Belum Dibuat</a>
+                    <div id="qrcode-container" style="margin-top: 15px; display: flex; justify-content: center;"></div>
+                </div>
+            </div>
+
+            <!-- Section 2: Decoder -->
+            <div class="full-width">
+                <div class="section-title">
+                    <span>🔍</span> Decoder QR Authenticator
+                </div>
+                <p style="font-size: 0.9rem; color: #6b7280; margin-top: 0;">Punya gambar QR Code tapi lupa kodenya?
+                    Upload di sini untuk melihat Secret Key.</p>
+
+                <input type="file" id="fileInput" accept="image/*">
+                <div id="output">Hasil scan akan muncul di sini...</div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Dibuat dengan ❤️ untuk mempermudah pekerjaan Operator Sekolah.
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs/dist/protobuf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        new QRCode(document.getElementById("qrcode"), {
-            text: "https://sso.data.kemendikdasmen.go.id/sys/authentication/verify",
-            width: 200,
-            height: 200
-        });
-    </script>
-</body>
-</html>
+        // === LOGIC START ===
+        // (Logic preserved and adapted from original file)
 
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+
+        function handleFile(evt) {
+            const file = evt.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        processQR(code.data);
+                    } else {
+                        document.getElementById('output').textContent = "❌ QR code tidak terbaca.";
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        function processQR(qrText) {
+            try {
+                if (qrText.startsWith("otpauth://")) {
+                    const url = new URL(qrText);
+                    const secret = url.searchParams.get("secret");
+                    const issuer = url.searchParams.get("issuer") || "(tidak ada)";
+                    const label = decodeURIComponent(url.pathname.replace(/^\/\//, ''));
+                    if (secret) {
+                        document.getElementById('output').textContent =
+                            `📌 OTP Auth\n` +
+                            `Nama   : ${label}\n` +
+                            `Issuer : ${issuer}\n` +
+                            `Secret : ${secret}`;
+                        // Auto fill if empty
+                        if (!document.getElementById("bookmarkletCode").value) {
+                            document.getElementById("bookmarkletCode").value = secret;
+                            document.getElementById("bookmarkletNama").value = label || issuer || "Akun Saya";
+                        }
+                    } else {
+                        document.getElementById('output').textContent = "⚠️ Secret tidak ditemukan di QR.";
+                    }
+                    return;
+                }
+                const url = new URL(qrText);
+                let dataParam = url.searchParams.get("data");
+
+                if (!dataParam) {
+                    document.getElementById('output').textContent = "⚠️ Parameter data= tidak ditemukan.";
+                    return;
+                }
+
+                dataParam = dataParam.replace(/ /g, '+').replace(/%20/g, '+').replace(/%2B/gi, '+');
+
+                const binary = atob(dataParam);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+
+                const root = protobuf.Root.fromJSON({
+                    nested: {
+                        MigrationPayload: {
+                            fields: {
+                                otpParameters: { rule: "repeated", type: "OtpParameters", id: 1 },
+                                version: { type: "int32", id: 2 },
+                                batchSize: { type: "int32", id: 3 },
+                                batchIndex: { type: "int32", id: 4 },
+                                batchId: { type: "bytes", id: 5 }
+                            }
+                        },
+                        OtpParameters: {
+                            fields: {
+                                secret: { type: "bytes", id: 1 },
+                                name: { type: "string", id: 2 },
+                                issuer: { type: "string", id: 3 },
+                                algorithm: { type: "int32", id: 4 },
+                                digits: { type: "int32", id: 5 },
+                                type: { type: "int32", id: 6 },
+                                counter: { type: "int64", id: 7 }
+                            }
+                        }
+                    }
+                });
+
+                const MigrationPayload = root.lookupType("MigrationPayload");
+                const payload = MigrationPayload.decode(bytes);
+
+                if (!payload.otpParameters || payload.otpParameters.length === 0) {
+                    document.getElementById('output').textContent = "⚠️ Tidak ada akun ditemukan di payload migrasi.";
+                    return;
+                }
+
+                let result = "";
+                let firstSecret = "";
+                let firstName = "";
+
+                payload.otpParameters.forEach((param, i) => {
+                    const secretBase32 = base32Encode(param.secret);
+                    result += `📌 Akun ${i + 1}\n`;
+                    result += `Nama   : ${param.name}\n`;
+                    result += `Issuer : ${param.issuer}\n`;
+                    result += `Secret : ${secretBase32}\n\n`;
+                    if (i === 0) { firstSecret = secretBase32; firstName = param.name; }
+                });
+
+                document.getElementById('output').textContent = result;
+
+                // Auto fill first found logic
+                if (!document.getElementById("bookmarkletCode").value && firstSecret) {
+                    document.getElementById("bookmarkletCode").value = firstSecret;
+                    document.getElementById("bookmarkletNama").value = firstName || "Dapodik User";
+                }
+
+            } catch (err) {
+                document.getElementById('output').textContent = "❌ Error: " + err.message;
+            }
+        }
+
+        function base32Encode(bytes) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let bits = 0, value = 0, output = '';
+            for (let i = 0; i < bytes.length; i++) {
+                value = (value << 8) | bytes[i];
+                bits += 8;
+                while (bits >= 5) {
+                    output += alphabet[(value >>> (bits - 5)) & 31];
+                    bits -= 5;
+                }
+            }
+            if (bits > 0) {
+                output += alphabet[(value << (5 - bits)) & 31];
+            }
+            return output;
+        }
+
+        function hexToBase32(hex) {
+            hex = hex.toUpperCase().replace(/[^0-9A-F]/g, '');
+            var bytes = [];
+            for (var i = 0; i < hex.length; i += 2) {
+                bytes.push(parseInt(hex.substr(i, 2), 16));
+            }
+            return base32Encode(bytes);
+        }
+
+        function getCleanSecret() {
+            let code = document.getElementById("bookmarkletCode").value.trim().toUpperCase();
+            // Remove separators
+            let cleanCode = code.replace(/[- ]/g, "");
+
+            // Heuristic: If it contains NOT (A-Z or 2-7) but IS valid Hex (0-9, A-F), assume Hex.
+            // Specifically focusing on 0, 1, 8, 9 which are NOT in Base32 but ARE in Hex.
+            // Also if it is exactly 32 chars (16 bytes) and all hex, it's likely a GUID/Key.
+            if ((/[0189]/.test(cleanCode) && /^[0-9A-F]+$/.test(cleanCode)) || (cleanCode.length === 32 && /^[0-9A-F]+$/.test(cleanCode))) {
+                return hexToBase32(cleanCode);
+            }
+
+            // Otherwise sanitize as Base32
+            return cleanCode.replace(/[^A-Z2-7]/g, "");
+        }
+
+        function showResult() {
+            document.getElementById("resultArea").style.display = "block";
+        }
+
+        function generateBookmarklet() {
+            let code = getCleanSecret();
+            const namacode = document.getElementById("bookmarkletNama").value.trim();
+            const selected2fa = document.querySelector('input[name="bmOption"]:checked').value;
+
+            if (!code) {
+                alert("Masukkan kode secret yang valid.");
+                return;
+            } else if (!namacode) {
+                alert("Masukkan nama bookmark terlebih dahulu.");
+                return;
+            }
+
+            // Update JS Code with specific base32 decode fix
+            let jsCode = `var secretKey="${code}";var jadiKey="";function base32Decode(e){for(var t=e.toUpperCase().replace(/[^A-Z2-7]/g,""),r=0,n=0,a=[],o=0;o<t.length;o++){var c="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(t[o]);if(-1===c)throw new Error("Invalid Base32 character: "+t[o]);n=n<<5|c,(r+=5)>=8&&(a.push(n>>>r-8&255),r-=8)}return new Uint8Array(a)}function intToBuffer(e){var t=new ArrayBuffer(8),r=new DataView(t),n=Math.floor(e/Math.pow(2,32)),a=e>>>0;return r.setUint32(0,n),r.setUint32(4,a),new Uint8Array(t)}function generateTOTP(e,t,r,n){t=t||6,r=r||30,n=n||"SHA-1";var a=base32Decode(e),o=Math.floor(Date.now()/1e3),c=intToBuffer(Math.floor(o/r));return crypto.subtle.importKey("raw",a,{name:"HMAC",hash:{name:n}},!1,["sign"]).then(function(e){return crypto.subtle.sign("HMAC",e,c)}).then(function(e){var r=new Uint8Array(e),n=15&r[r.length-1];return(((127&r[n])<<24|(255&r[n+1])<<16|(255&r[n+2])<<8|255&r[n+3])%Math.pow(10,t)).toString().padStart(t,"0")})}generateTOTP(secretKey).then(function(e){jadiKey=e;var jotp="${selected2fa}";if("infogtk"==jotp){const e=document.querySelectorAll("#otpForm .otp-input");jadiKey.split("").forEach((t,o)=>{e[o]&&(e[o].value=t)})}else document.getElementById("${selected2fa}").value=e;}).catch(function(e){alert("Error: id tidak ditemukan untuk OTP " + jadiKey)});`;
+
+            const bookmarklet = "javascript:(function(){" + encodeURIComponent(jsCode) + "})();";
+            const link = document.getElementById("bookmarkletLink");
+            link.href = bookmarklet;
+            link.textContent = namacode;
+
+            // Hide QR container if switching modes in same view
+            document.getElementById("qrcode-container").innerHTML = "";
+            showResult();
+        }
+
+        function generateQR() {
+            let code = getCleanSecret();
+            const name = document.getElementById("bookmarkletNama").value.trim() || "My Account";
+            const container = document.getElementById("qrcode-container");
+            container.innerHTML = ""; // Clear previous
+
+            if (!code) {
+                alert("Masukkan kode secret terlebih dahulu!");
+                return;
+            }
+
+            const uri = `otpauth://totp/${encodeURIComponent(name)}?secret=${code}&issuer=DapodikHelper`;
+            new QRCode(container, {
+                text: uri,
+                width: 128,
+                height: 128
+            });
+
+            showResult();
+        }
+    </script>
+
+</body>
+
+</html>
